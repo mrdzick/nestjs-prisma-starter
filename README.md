@@ -77,16 +77,16 @@ A boilerplate to quickly start new NestJS projects with Prisma, JWT & API key au
 ### Installation
 
 1. Clone the repository:
-   ```
+   ```sh
    git clone https://github.com/mrdzick/nestjs-prisma-starter.git
    cd nestjs-prisma-starter
    ```
 2. Install dependencies:
-   ```
+   ```sh
    npm install
    ```
    or
-   ```
+   ```sh
    yarn install
    ```
 
@@ -98,7 +98,7 @@ Create a `.env` file in the root directory and add your environment-specific var
 
 This starter includes a minimal Prisma schema (`prisma/schema.prisma`) that defines only the `generator` and `datasource` blocks:
 
-```
+```prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -112,15 +112,15 @@ datasource db {
 Because no models are predefined, you’ll need to add your own [Prisma models](https://www.prisma.io/docs/orm/prisma-schema/data-model/models) as needed. Once you have updated your schema, you can create or migrate your database structure:
 
 1. Validate Prisma schema:
-   ```
+   ```sh
    npx prisma validate
    ```
 2. Push schema to your database:
-   ```
+   ```sh
    npx prisma db push
    ```
    or run migrations if you plan to track changes over time:
-   ```
+   ```sh
    npx prisma migrate dev
    ```
 
@@ -128,7 +128,7 @@ Because no models are predefined, you’ll need to add your own [Prisma models](
 
 To start the development server, run:
 
-```
+```sh
 npm run start:dev
 ```
 
@@ -191,7 +191,7 @@ nestjs-prisma-starter
 
 Example usage in a controller:
 
-```
+```typescript
 import { Controller, Get, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '@/src/auth/guards/jwt-auth.guard';
 import { ApiKeyAuthGuard } from '@/src/auth/guards/api-key-auth.guard';
@@ -216,7 +216,7 @@ export class UserController {
 
 A custom decorator (e.g., `@GetUser()`) allows you to extract user information from the JWT token payload:
 
-```
+```typescript
 // usage in a controller
 @Get('me')
 @UseGuards(JwtAuthGuard)
@@ -229,7 +229,7 @@ getMe(@GetUser() user: any) {
 
 A **global error filter** is set up to handle HTTP exceptions uniformly throughout the application. It is registered in `AppModule` using the `APP_FILTER` token:
 
-```
+```typescript
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 
@@ -268,7 +268,7 @@ When an error is thrown anywhere in the application, the global filter ensures a
 
 Using [class-validator](https://github.com/typestack/class-validator) and [class-transformer](https://github.com/typestack/class-transformer), you can validate incoming requests and transform data automatically.
 
-```
+```typescript
 import { IsInt, IsString, IsEmail, IsOptional } from 'class-validator';
 
 export class ExampleDto {
@@ -294,29 +294,29 @@ http://localhost:3000/api-docs # Depends on your swagger configuration
 
 You can customize Swagger options in `main.ts`:
 
-```
+```typescript
 // Other code
 if (configService.get('SWAGGER_ENABLED') === 'true') {
-   const config = new DocumentBuilder()
-   .setTitle('API Documentation')
-   .setDescription('REST API Documentation')
-   .addBearerAuth(
+  const config = new DocumentBuilder()
+    .setTitle('API Documentation')
+    .setDescription('REST API Documentation')
+    .addBearerAuth(
       { type: 'http', scheme: 'Bearer', bearerFormat: 'JWT', in: 'header' },
       'Authorization',
-   )
-   .addApiKey(
+    )
+    .addApiKey(
       {
-         type: 'apiKey',
-         name: 'x-api-key',
-         in: 'header',
+        type: 'apiKey',
+        name: 'x-api-key',
+        in: 'header',
       },
       'API-Key',
-   )
-   .setVersion('1.0')
-   .build();
+    )
+    .setVersion('1.0')
+    .build();
 
-   const document = SwaggerModule.createDocument(app, config);
-   SwaggerModule.setup('api-docs', app, document);
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document);
 }
 // Other code
 ```
@@ -325,20 +325,24 @@ if (configService.get('SWAGGER_ENABLED') === 'true') {
 
 The application demonstrates how to version your routes:
 
-```
+```typescript
 @Controller({ path: 'example', version: '1' })
-export class ExampleV1Controller { /* ... */ }
+export class ExampleV1Controller {
+  /* ... */
+}
 
 @Controller({ path: 'example', version: '2' })
-export class ExampleV2Controller { /* ... */ }
+export class ExampleV2Controller {
+  /* ... */
+}
 ```
 
 In `main.ts`:
 
-```
+```typescript
 app.enableVersioning({
-   type: VersioningType.URI,
-   defaultVersion: '1',
+  type: VersioningType.URI,
+  defaultVersion: '1',
 });
 ```
 
@@ -348,7 +352,7 @@ This creates versioned endpoints like `/api/v1/example` and `/api/v2/example`.
 
 Prisma’s `onModuleInit()` and `onModuleDestroy()` methods are used for connecting and disconnecting the database client, ensuring a clean shutdown of the application.
 
-```
+```typescript
 @Injectable()
 export class PrismaService
   extends PrismaClient
@@ -389,7 +393,7 @@ export class PrismaService
 
 Additionally, to enable shutdown hooks when user press `ctrl + z `button, this line was added on `main.ts` file:
 
-```
+```typescript
 app.enableShutdownHooks();
 ```
 
